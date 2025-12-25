@@ -1,0 +1,8 @@
+.custom-menu .ant-menu-item {
+    transition: color 0.3s ease;
+}
+
+.custom-menu .ant-menu-item:hover {
+    color: '#0ea5a4';
+    /* or use your imported primaryColor */
+}
