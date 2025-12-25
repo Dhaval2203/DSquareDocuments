@@ -29,7 +29,6 @@ import {
 } from '../Utils/Colors';
 import { EMPLOYEE_DATA, deductionsData, earningsData } from '../Utils/Const';
 import numberToWords from '../Utils/UtilsFunction';
-import { sendSalarySlipEmail } from '../Utils/sendSalarySlipEmail';
 import { DownloadOutlined, EyeOutlined } from '@ant-design/icons';
 import { CustomCloseIcon, PreviewModalHeader, previewModalProps } from '../Utils/UIStyles/uiStyles';
 
@@ -357,48 +356,6 @@ export default function SalarySlip() {
                         Download PDF
                     </Button>
                 </Col>
-                {/* <Button
-                    style={{
-                        minWidth: 160,
-                        paddingInline: 20,
-                        backgroundColor: accentColor,
-                        color: whiteColor,
-                        borderRadius: 14,
-                    }}
-                    onClick={async () => {
-                        try {
-                            const employee = EMPLOYEE_DATA.find(
-                                (e) => e.employeeId === values?.employeeId
-                            );
-
-                            if (!employee) {
-                                Modal.warning({
-                                    title: 'Select Employee',
-                                    content: 'Please select an employee first',
-                                });
-                                return;
-                            }
-
-                            await sendSalarySlipEmail({
-                                employee,
-                                salaryPDFData,
-                                totals,
-                            });
-
-                            Modal.success({
-                                title: 'Email Sent',
-                                content: 'Salary slip emailed successfully',
-                            });
-                        } catch (error) {
-                            Modal.error({
-                                title: 'Error',
-                                content: error.message,
-                            });
-                        }
-                    }}
-                >
-                    Email Salary Slip
-                </Button> */}
             </Row>
 
             {/* ================= PREVIEW MODAL ================= */}
@@ -414,8 +371,8 @@ export default function SalarySlip() {
                             />
                         }
                         fileName={`Salary_Slip_${salaryPDFData?.name || 'Employee'}_${salaryPDFData?.monthYear?.format
-                                ? salaryPDFData.monthYear.format('MMM_YYYY')
-                                : dayjs().format('MMM_YYYY')
+                            ? salaryPDFData.monthYear.format('MMM_YYYY')
+                            : dayjs().format('MMM_YYYY')
                             }.pdf`}
                     >
                         <Button
