@@ -313,7 +313,6 @@ export default function SalarySlip() {
             </div>
 
             {/* Buttons */}
-            {/* Buttons */}
             <Row
                 justify="end"
                 gutter={[12, 12]}
@@ -404,7 +403,20 @@ export default function SalarySlip() {
             <Modal
                 open={previewVisible}
                 onCancel={() => setPreviewVisible(false)}
-                footer={null}
+                footer={
+                    <Button
+                        style={{
+                            minWidth: 140,
+                            paddingInline: 20,
+                            backgroundColor: secondaryColor,
+                            color: primaryBackgroundColor,
+                            borderRadius: 14,
+                        }}
+                        onClick={generatePDF}
+                    >
+                        Download PDF
+                    </Button>
+                }
                 width="100%"
                 style={{ top: 20 }}
                 styles={{
@@ -468,7 +480,7 @@ export default function SalarySlip() {
                         }}
                     />
                 </div>
-                <PDFViewer width="100%" height="100%">
+                <PDFViewer width="100%" height="90%">
                     <SalarySlipPDF data={salaryPDFData} totals={totals} />
                 </PDFViewer>
             </Modal>

@@ -8,6 +8,7 @@ export const borderColor = '#e2e8f0';
 export const whiteColor = '#ffffff';
 export const secondaryBackgroundColor = '#FFF1F2';
 export const primaryBackgroundColor = '#ECFEFF';
+export const accentBackgroundColor = '#C7D2FE';
 // #1AB1AF
 // #26BDBC
 // #33C9C8

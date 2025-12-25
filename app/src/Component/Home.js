@@ -11,6 +11,7 @@ import {
 } from '../Utils/Colors';
 
 import FooterComponent from './Footer';
+import OfferLetter from './Offerletter';
 import Headers from './Header';
 import SalarySleep from './SalarySleep';
 
@@ -85,6 +86,10 @@ export default function HomePage() {
                     <SalarySleep />
                 </section>
 
+                {/* Offerletter Component can be added here */}
+                <section id="offerLetter" style={{ padding: '40px 16px', textAlign: 'center', background: whiteColor, scrollMarginTop: 90 }}>
+                    <OfferLetter />
+                </section>
             </Content>
 
             {/* Footer */}
