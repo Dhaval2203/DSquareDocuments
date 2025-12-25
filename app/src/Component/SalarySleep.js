@@ -17,7 +17,17 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import { saveAs } from 'file-saver';
-import { pdf, PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
+import dynamic from 'next/dynamic';
+
+const PDFDownloadLink = dynamic(
+    () => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink),
+    { ssr: false }
+);
+
+const PDFViewer = dynamic(
+    () => import('@react-pdf/renderer').then(mod => mod.PDFViewer),
+    { ssr: false }
+);
 import { SalarySlipPDF } from './SalarySlipTemplate';
 import {
     accentColor,
