@@ -3,8 +3,8 @@ export const companyEmail = "info@dsquareinfotech.com";
 export const companyPhone = "+91 98765 43210";
 
 export const menuItems = [
-    { key: "salarySleep", label: "Salary Sleep" },
-    { key: "offerLetter", label: "Offer Letter" },
+    { key: "salarysleep", label: "Salary Sleep" },
+    { key: "offerletter", label: "Offer Letter" },
 ]
 
 /* ----------------------------------

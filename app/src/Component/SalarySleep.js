@@ -17,7 +17,7 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import { saveAs } from 'file-saver';
-import { pdf, PDFViewer } from '@react-pdf/renderer';
+import { pdf, PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 import { SalarySlipPDF } from './SalarySlipTemplate';
 import {
     accentColor,
@@ -30,6 +30,8 @@ import {
 import { EMPLOYEE_DATA, deductionsData, earningsData } from '../Utils/Const';
 import numberToWords from '../Utils/UtilsFunction';
 import { sendSalarySlipEmail } from '../Utils/sendSalarySlipEmail';
+import { DownloadOutlined, EyeOutlined } from '@ant-design/icons';
+import { CustomCloseIcon, PreviewModalHeader, previewModalProps } from '../Utils/UIStyles/uiStyles';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -60,6 +62,14 @@ export default function SalarySlip() {
     const [form] = Form.useForm();
     const values = Form.useWatch([], form);
     const slipRef = useRef();
+
+    const actionButtonStyle = {
+        minWidth: 160,
+        paddingInline: 20,
+        height: 44,
+        borderRadius: 14,
+        fontWeight: 600,
+    };
 
     /* --------------------------------
        Totals (Live Calculation)
@@ -313,42 +323,34 @@ export default function SalarySlip() {
             </div>
 
             {/* Buttons */}
-            <Row
-                justify="end"
-                gutter={[12, 12]}
-                style={{ marginTop: 24 }}
-            >
+            <Row style={{ marginTop: 16 }}>
                 <Col
                     xs={24}
-                    sm="auto"
-                    style={{ display: 'flex', justifyContent: 'center' }}
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        gap: 12,
+                        flexWrap: 'wrap',
+                    }}
                 >
                     <Button
+                        icon={<EyeOutlined />}
                         style={{
-                            minWidth: 140,
-                            paddingInline: 20,
+                            ...actionButtonStyle,
                             backgroundColor: primaryColor,
                             color: whiteColor,
-                            borderRadius: 14,
                         }}
                         onClick={() => setPreviewVisible(true)}
                     >
                         Preview PDF
                     </Button>
-                </Col>
 
-                <Col
-                    xs={24}
-                    sm="auto"
-                    style={{ display: 'flex', justifyContent: 'center' }}
-                >
                     <Button
+                        icon={<DownloadOutlined />}
                         style={{
-                            minWidth: 140,
-                            paddingInline: 20,
+                            ...actionButtonStyle,
                             backgroundColor: secondaryColor,
-                            color: primaryBackgroundColor,
-                            borderRadius: 14,
+                            color: whiteColor,
                         }}
                         onClick={generatePDF}
                     >
@@ -399,89 +401,50 @@ export default function SalarySlip() {
                 </Button> */}
             </Row>
 
-            {/* PDF Preview */}
+            {/* ================= PREVIEW MODAL ================= */}
             <Modal
                 open={previewVisible}
                 onCancel={() => setPreviewVisible(false)}
                 footer={
-                    <Button
-                        style={{
-                            minWidth: 140,
-                            paddingInline: 20,
-                            backgroundColor: secondaryColor,
-                            color: primaryBackgroundColor,
-                            borderRadius: 14,
-                        }}
-                        onClick={generatePDF}
+                    <PDFDownloadLink
+                        document={
+                            <SalarySlipPDF
+                                data={salaryPDFData}
+                                totals={totals}
+                            />
+                        }
+                        fileName={`Salary_Slip_${salaryPDFData?.name || 'Employee'}_${salaryPDFData?.monthYear?.format
+                                ? salaryPDFData.monthYear.format('MMM_YYYY')
+                                : dayjs().format('MMM_YYYY')
+                            }.pdf`}
                     >
-                        Download PDF
-                    </Button>
+                        <Button
+                            icon={<DownloadOutlined />}
+                            style={{
+                                ...actionButtonStyle,
+                                backgroundColor: secondaryColor,
+                                color: whiteColor,
+                            }}
+                        >
+                            Download PDF
+                        </Button>
+                    </PDFDownloadLink>
                 }
-                width="100%"
-                style={{ top: 20 }}
-                styles={{
-                    body: {
-                        height: '80vh',
-                    },
-                }}
+                {...previewModalProps}
                 closeIcon={
-                    <div
-                        style={{
-                            background: primaryColor + '20',
-                            borderRadius: '50%',
-                            width: 28,
-                            height: 28,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: secondaryColor,
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background = primaryColor + '40';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = primaryColor + '20';
-                        }}
-                    >
-                        ×
-                    </div>
+                    <CustomCloseIcon
+                        primaryColor={primaryColor}
+                        secondaryColor={secondaryColor}
+                    />
                 }
             >
-                <div style={{ background: whiteColor, position: 'sticky', top: 0, zIndex: 10 }}>
-                    <Title
-                        level={4}
-                        style={{
-                            fontWeight: 700,
-                            letterSpacing: '0.3px',
-                            lineHeight: 1.3,
-                            background: `linear-gradient(
-                            90deg,
-                            ${primaryColor} 0%,
-                            ${secondaryColor} 50%,
-                            ${primaryColor} 100%
-                        )`,
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                        }}
-                    >
-                        Salary Slip Preview
-                    </Title>
+                <PreviewModalHeader title="Salary Slip Preview" />
 
-                    <div
-                        style={{
-                            height: 4,
-                            width: '100%',
-                            borderRadius: 4,
-                            background: `linear-gradient(90deg, ${primaryColor}80, ${secondaryColor}80)`,
-                            marginBottom: 8,
-                        }}
-                    />
-                </div>
                 <PDFViewer width="100%" height="90%">
-                    <SalarySlipPDF data={salaryPDFData} totals={totals} />
+                    <SalarySlipPDF
+                        data={salaryPDFData}
+                        totals={totals}
+                    />
                 </PDFViewer>
             </Modal>
         </Card>

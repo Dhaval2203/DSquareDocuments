@@ -58,86 +58,11 @@ export default function HomePage() {
             }}
         >
             {/* Animated Background Circle */}
-            <div
-                aria-hidden
-                style={{
-                    position: 'fixed',
-                    width: 600,
-                    height: 600,
-                    borderRadius: '50%',
-                    top: '50%',
-                    left: '50%',
-                    transform: `translate(-50%, -50%) scale(${circleScale})`,
-                    background: activeGradient,
-                    opacity: 0.25,
-                    filter: 'blur(80px)',
-                    transition: 'transform 0.3s ease, background 0.3s ease',
-                    zIndex: 0,
-                    pointerEvents: 'none',
-                }}
-            />
 
             {/* Header */}
             <Headers />
-
-            {/* Content */}
-            <Content style={{ flex: 1, marginTop: 90, position: 'relative', zIndex: 1 }}>
-                <section id="salarySleep" style={{ padding: '40px 16px', textAlign: 'center', background: whiteColor, scrollMarginTop: 90 }}>
-                    <SalarySleep />
-                </section>
-
-                {/* Offerletter Component can be added here */}
-                <section id="offerLetter" style={{ padding: '40px 16px', textAlign: 'center', background: whiteColor, scrollMarginTop: 90 }}>
-                    <OfferLetter />
-                </section>
-            </Content>
-
-            {/* Footer */}
+            <SalarySleep />
             <FooterComponent />
-
-            {/* Scroll To Top with Circular Progress */}
-            {showScrollTop && (
-                <div
-                    onClick={scrollToTop}
-                    style={{
-                        position: 'fixed',
-                        right: 'calc(24px + env(safe-area-inset-right))',
-                        bottom: 'calc(24px + env(safe-area-inset-bottom))',
-                        width: 48,
-                        height: 48,
-                        cursor: 'pointer',
-                        zIndex: 1000,
-                        transition: 'transform 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-                >
-                    {/* Progress Ring */}
-                    <Progress
-                        type="circle"
-                        percent={Math.round(scrollPercent * 100)}
-                        size={48}
-                        strokeWidth={8}
-                        strokeColor={primaryColor}
-                        trailColor={secondaryColor}
-                        format={() => null} // disable default centering
-                    />
-
-                    {/* Center Arrow Icon */}
-                    <div
-                        style={{
-                            position: 'absolute',
-                            inset: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            pointerEvents: 'none',
-                        }}
-                    >
-                        <FaArrowUp size={18} color={accentColor} />
-                    </div>
-                </div>
-            )}
         </Layout>
     );
 }

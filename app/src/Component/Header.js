@@ -9,6 +9,7 @@ import { CiSquareCheck } from "react-icons/ci";
 import { accentColor, primaryColor, secondaryColor, whiteColor } from '../Utils/Colors';
 import { menuItems } from '../Utils/Const';
 import { scrollToSection } from '../Utils/Scroll';
+import { useRouter } from 'next/navigation';
 
 const { Header } = Layout;
 
@@ -34,10 +35,13 @@ export default function Headers() {
     const [selectedKey, setSelectedKey] = useState('home');
     const [drawerOpen, setDrawerOpen] = useState(false);
 
+    const router = useRouter();
+
     const handleMenuClick = ({ key }) => {
         setSelectedKey(key);
-        scrollToSection(key);
         setDrawerOpen(false);
+        router.push(key);
+        scrollToSection(key);
     };
 
     useEffect(() => {
