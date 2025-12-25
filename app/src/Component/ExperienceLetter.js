@@ -7,12 +7,10 @@ import {
     Checkbox, Col,
     DatePicker, Form,
     Modal, Row,
-    Select,
-    Typography
+    Select, Tag,
+    Typography,
 } from 'antd';
 import { useEffect, useState } from 'react';
-
-const { Title, Text } = Typography;
 
 import {
     primaryColor, secondaryBackgroundColor,
@@ -29,6 +27,8 @@ import { CustomCloseIcon, PreviewModalHeader, previewModalProps } from '../Utils
 import ExperienceLetterNegativeTemplate from './ExperienceLetterNegativeTemplate';
 import ExperienceLetterPositiveTemplate from './ExperienceLetterPositiveTemplate';
 
+const { Title, Text } = Typography;
+
 const actionButtonStyle = {
     minWidth: 160,
     paddingInline: 20,
@@ -41,25 +41,18 @@ export default function ExperienceLetter() {
     const [form] = Form.useForm();
     const [previewVisible, setPreviewVisible] = useState(false);
     const [selectedPoints, setSelectedPoints] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState('');
     const [pdfSnapshot, setPdfSnapshot] = useState(null);
 
     const values = Form.useWatch([], form);
 
-    // Set default category when experienceType changes
-    useEffect(() => {
-        if (values?.experienceType) {
-            const categories = values.experienceType === 'positive'
-                ? ['Achievements', 'Skills']
-                : ['Concerns', 'Improvement Areas'];
-            setTimeout(() => {
-                setSelectedCategory(categories[0]);
-                setSelectedPoints([]);
-            }, 0);
-        }
-    }, [values?.experienceType]);
-
     const isFormValid = values?.employeeId && values?.joiningDate && values?.relievingDate && values?.experienceType;
+
+    // Reset selected points when experienceType changes
+    useEffect(() => {
+        setTimeout(() => {
+            setSelectedPoints([]);
+        })
+    }, [values?.experienceType]);
 
     const getCategories = () => {
         if (values?.experienceType === 'positive') return ['Achievements', 'Skills'];
@@ -67,27 +60,33 @@ export default function ExperienceLetter() {
         return [];
     };
 
-    const getPointsByCategory = () => {
-        if (!values?.experienceType || !selectedCategory) return [];
+    const getPointsByCategory = (category) => {
+        if (!values?.experienceType) return [];
         if (values.experienceType === 'positive') {
-            return selectedCategory === 'Achievements' ? positiveAchievements : positiveSkills;
+            return category === 'Achievements' ? positiveAchievements : positiveSkills;
         } else {
-            return selectedCategory === 'Concerns' ? negativeConcerns : negativeImprovements;
+            return category === 'Concerns' ? negativeConcerns : negativeImprovements;
         }
     };
 
-    const pointsForCategory = getPointsByCategory();
-
-    const handleSelectAll = () => {
-        const newSelections = [...new Set([...selectedPoints, ...pointsForCategory])];
-        setSelectedPoints(newSelections);
+    const handleSelectAll = (points) => {
+        setSelectedPoints(prev => [...new Set([...prev, ...points])]);
     };
 
-    const handleDeselectAll = () => {
-        const newSelections = selectedPoints.filter(p => !pointsForCategory.includes(p));
-        setSelectedPoints(newSelections);
+    const handleDeselectAll = (points) => {
+        setSelectedPoints(prev => prev.filter(p => !points.includes(p)));
     };
 
+    const tagRender = (props) => {
+        const { label, closable, onClose } = props;
+        return (
+            <Tag color={primaryColor} closable={closable} onClose={onClose} style={{ marginRight: 4, marginBottom: 4 }}>
+                {label}
+            </Tag>
+        );
+    };
+
+    // Generate fresh PDF snapshot
     const handlePreview = () => {
         if (!isFormValid) return;
 
@@ -95,17 +94,12 @@ export default function ExperienceLetter() {
             employee: EMPLOYEE_DATA.find(e => e.employeeId === values.employeeId),
             joiningDate: values.joiningDate.format('DD MMMM YYYY'),
             relievingDate: values.relievingDate.format('DD MMMM YYYY'),
+            experienceType: values.experienceType,
             selectedPointsByCategory: getCategories().reduce((acc, cat) => {
-                acc[cat] = selectedPoints.filter(p => {
-                    if (values.experienceType === 'positive') {
-                        return cat === 'Achievements' ? positiveAchievements.includes(p) : positiveSkills.includes(p);
-                    } else {
-                        return cat === 'Concerns' ? negativeConcerns.includes(p) : negativeImprovements.includes(p);
-                    }
-                });
+                const points = getPointsByCategory(cat);
+                acc[cat] = selectedPoints.filter(p => points.includes(p));
                 return acc;
             }, {}),
-            experienceType: values.experienceType
         };
 
         setPdfSnapshot(snapshot);
@@ -127,9 +121,7 @@ export default function ExperienceLetter() {
                     <Text style={{ color: '#E5E7EB' }}>Generate employee experience letter</Text>
                 </Card>
 
-                <Form form={form} layout="vertical" onValuesChange={(changedValues) => {
-                    if (changedValues.experienceType) setSelectedPoints([]);
-                }}>
+                <Form form={form} layout="vertical">
                     <Card style={{ borderRadius: 12 }}>
                         <Row gutter={[16, 16]}>
                             <Col xs={24} md={12} lg={6}>
@@ -166,49 +158,49 @@ export default function ExperienceLetter() {
 
                         {values?.experienceType && (
                             <Form.Item label="Select Reason">
-                                <Card size="small" style={{ width: '100%', padding: 16, borderRadius: 12, backgroundColor: secondaryBackgroundColor }}>
-                                    <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
-                                        {getCategories().map(cat => (
-                                            <Button key={cat} size="small" type={cat === selectedCategory ? 'primary' : 'default'}
-                                                onClick={() => setSelectedCategory(cat)}
-                                                style={{
-                                                    borderRadius: 16,
-                                                    backgroundColor: cat === selectedCategory ? primaryColor : undefined,
-                                                    color: cat === selectedCategory ? whiteColor : undefined
-                                                }}
-                                            >
-                                                {cat}
-                                            </Button>
-                                        ))}
-                                    </div>
+                                <Row gutter={16}>
+                                    {getCategories().map((cat, index) => {
+                                        const points = getPointsByCategory(cat);
+                                        return (
+                                            <Col xs={24} md={12} key={`${index}_${cat}`}>
+                                                <Card size="small" style={{ width: '100%', padding: 16, borderRadius: 12, backgroundColor: secondaryBackgroundColor }}>
+                                                    <Title level={5} style={{ color: primaryColor }}>{cat}</Title>
 
-                                    <Checkbox
-                                        checked={pointsForCategory.length > 0 && pointsForCategory.every(p => selectedPoints.includes(p))}
-                                        indeterminate={pointsForCategory.some(p => selectedPoints.includes(p)) && !pointsForCategory.every(p => selectedPoints.includes(p))}
-                                        onChange={e => e.target.checked ? handleSelectAll() : handleDeselectAll()}
-                                        style={{ fontWeight: 600 }}
-                                    >
-                                        Select All
-                                    </Checkbox>
+                                                    <Checkbox
+                                                        checked={points.length > 0 && points.every(p => selectedPoints.includes(p))}
+                                                        indeterminate={points.some(p => selectedPoints.includes(p)) && !points.every(p => selectedPoints.includes(p))}
+                                                        onChange={e =>
+                                                            e.target.checked
+                                                                ? handleSelectAll(points)
+                                                                : handleDeselectAll(points)
+                                                        }
+                                                        style={{ fontWeight: 600, marginBottom: 8 }}
+                                                    >
+                                                        Select All
+                                                    </Checkbox>
 
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8, maxHeight: 300, overflowY: 'auto' }}>
-                                        {pointsForCategory.map(option => (
-                                            <Checkbox
-                                                key={option}
-                                                checked={selectedPoints.includes(option)}
-                                                onChange={e =>
-                                                    setSelectedPoints(prev =>
-                                                        e.target.checked
-                                                            ? [...prev, option]
-                                                            : prev.filter(p => p !== option)
-                                                    )
-                                                }
-                                            >
-                                                {option}
-                                            </Checkbox>
-                                        ))}
-                                    </div>
-                                </Card>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 250, overflowY: 'auto' }}>
+                                                        {points.map(option => (
+                                                            <Checkbox
+                                                                key={option}
+                                                                checked={selectedPoints.includes(option)}
+                                                                onChange={e =>
+                                                                    setSelectedPoints(prev =>
+                                                                        e.target.checked
+                                                                            ? [...prev, option]
+                                                                            : prev.filter(p => p !== option)
+                                                                    )
+                                                                }
+                                                            >
+                                                                {option}
+                                                            </Checkbox>
+                                                        ))}
+                                                    </div>
+                                                </Card>
+                                            </Col>
+                                        );
+                                    })}
+                                </Row>
                             </Form.Item>
                         )}
 
