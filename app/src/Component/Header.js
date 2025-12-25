@@ -4,12 +4,16 @@ import dynamic from 'next/dynamic';
 import { Button, Layout } from 'antd';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { TiThMenuOutline } from "react-icons/ti";
-import { CiSquareCheck } from "react-icons/ci";
-import { accentColor, primaryColor, secondaryColor, whiteColor } from '../Utils/Colors';
+import { TiThMenuOutline } from 'react-icons/ti';
+import { CiSquareCheck } from 'react-icons/ci';
+import {
+    accentColor,
+    primaryColor,
+    secondaryColor,
+    whiteColor,
+} from '../Utils/Colors';
 import { menuItems } from '../Utils/Const';
-import { scrollToSection } from '../Utils/Scroll';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 const { Header } = Layout;
 
@@ -23,7 +27,7 @@ const ClientDrawer = dynamic(
     { ssr: false }
 );
 
-// Utility function to convert hex color to rgba with opacity
+// Utility: hex → rgba
 const hexToRgba = (hex, opacity = 0.2) => {
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
@@ -32,56 +36,69 @@ const hexToRgba = (hex, opacity = 0.2) => {
 };
 
 export default function Headers() {
-    const [selectedKey, setSelectedKey] = useState('home');
+    const router = useRouter();
+    const pathname = usePathname();
+
+    const [selectedKey, setSelectedKey] = useState('salarysleep');
     const [drawerOpen, setDrawerOpen] = useState(false);
 
-    const router = useRouter();
+    // Update selectedKey based on current route
+    useEffect(() => {
+        const activeItem = menuItems.find((item) =>
+            pathname === '/' ? item.key === 'salarysleep' : pathname.startsWith(item.key)
+        );
+
+        if (activeItem) {
+            window.requestAnimationFrame(() => {
+                setSelectedKey(activeItem.key);
+            });
+        }
+    }, [pathname]);
 
     const handleMenuClick = ({ key }) => {
         setSelectedKey(key);
         setDrawerOpen(false);
         router.push(key);
-        scrollToSection(key);
     };
 
-    useEffect(() => {
-        const headerEl = document.querySelector('header');
-        const headerHeight = headerEl ? headerEl.offsetHeight : 90;
-
-        const observer = new IntersectionObserver(
-            (entries) => {
-                const visible = entries.filter((e) => e.isIntersecting);
-
-                if (visible.length) {
-                    visible.sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-                    setSelectedKey(visible[0].target.id);
-                    return;
-                }
-
-                const sorted = entries.sort(
-                    (a, b) =>
-                        Math.abs(a.boundingClientRect.top - headerHeight) -
-                        Math.abs(b.boundingClientRect.top - headerHeight)
-                );
-
-                if (sorted.length) {
-                    setSelectedKey(sorted[0].target.id);
-                }
-            },
-            {
-                root: null,
-                rootMargin: `-${headerHeight}px 0px -40% 0px`,
-                threshold: [0, 0.25, 0.5, 0.75, 1],
-            }
-        );
-
-        menuItems.forEach((item) => {
-            const el = document.getElementById(item.key);
-            if (el) observer.observe(el);
-        });
-
-        return () => observer.disconnect();
-    }, []);
+    // Prepare desktop menu items with underline for active and hover effect
+    const desktopMenuItems = menuItems.map((item) => ({
+        key: item.key,
+        label: (
+            <span
+                style={{
+                    position: 'relative',
+                    color: selectedKey === item.key ? primaryColor : '#333',
+                    fontWeight: selectedKey === item.key ? 600 : 400,
+                    paddingBottom: 4,
+                    cursor: 'pointer',
+                    transition: 'color 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.color = secondaryColor;
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.color =
+                        selectedKey === item.key ? primaryColor : '#333';
+                }}
+            >
+                {item.label}
+                {selectedKey === item.key && (
+                    <span
+                        style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            width: '100%',
+                            height: 2,
+                            backgroundColor: primaryColor,
+                            borderRadius: 2,
+                        }}
+                    />
+                )}
+            </span>
+        ),
+    }));
 
     return (
         <Header
@@ -103,7 +120,7 @@ export default function Headers() {
             {/* Logo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <Image src="/Logo.png" alt="D Square Logo" width={50} height={50} />
-                <span style={{ fontSize: 26, fontWeight: 900, lineHeight: 1 }}>
+                <span style={{ fontSize: 26, fontWeight: 900 }}>
                     <span style={{ color: primaryColor }}>D</span>{' '}
                     <span style={{ color: secondaryColor }}>Square</span>{' '}
                     <span style={{ color: accentColor }}>Infotech</span>
@@ -115,30 +132,20 @@ export default function Headers() {
                 <ClientMenu
                     mode="horizontal"
                     disabledOverflow
-                    className="custom-menu"
                     selectedKeys={[selectedKey]}
                     onClick={handleMenuClick}
-                    items={menuItems}
+                    items={desktopMenuItems}
+                    style={{ borderBottom: 'none' }}
                 />
             </div>
 
             {/* Mobile Menu Button */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Button
-                    className="mobile-menu-btn"
-                    type="text"
-                    icon={<TiThMenuOutline style={{ color: secondaryColor, fontSize: 28 }} />}
-                    onClick={() => setDrawerOpen(true)}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 0,
-                        height: '100%',
-                        lineHeight: 1,
-                    }}
-                />
-            </div>
+            <Button
+                className="mobile-menu-btn"
+                type="text"
+                icon={<TiThMenuOutline style={{ color: secondaryColor, fontSize: 28 }} />}
+                onClick={() => setDrawerOpen(true)}
+            />
 
             {/* Mobile Drawer */}
             <ClientDrawer
@@ -146,37 +153,46 @@ export default function Headers() {
                 open={drawerOpen}
                 onClose={() => setDrawerOpen(false)}
             >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                    {menuItems.map((item) => (
-                        <div
-                            key={item.key}
-                            onClick={() => handleMenuClick({ key: item.key })}
+                {menuItems.map((item) => (
+                    <div
+                        key={item.key}
+                        onClick={() => handleMenuClick({ key: item.key })}
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '12px 16px',
+                            cursor: 'pointer',
+                            backgroundColor:
+                                selectedKey === item.key
+                                    ? hexToRgba(primaryColor, 0.2)
+                                    : 'transparent',
+                            borderBottom: `1px solid ${accentColor}80`,
+                            borderRadius: 8,
+                            margin: '4px 0',
+                        }}
+                    >
+                        <span
                             style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                padding: '12px 16px',
-                                cursor: 'pointer',
-                                backgroundColor: selectedKey === item.key ? hexToRgba(primaryColor, 0.2) : 'transparent',
-                                borderBottom: `1px solid ${accentColor}80`,
-                                borderRadius: 8, // <-- Add this line for rounded corners
-                                margin: '4px 0', // optional: small gap between items
+                                color:
+                                    selectedKey === item.key
+                                        ? secondaryColor
+                                        : primaryColor,
+                                fontWeight: selectedKey === item.key ? 600 : 400,
                             }}
                         >
-                            <span
+                            {item.label}
+                        </span>
+                        {selectedKey === item.key && (
+                            <CiSquareCheck
                                 style={{
-                                    color: selectedKey === item.key ? secondaryColor : primaryColor,
-                                    fontWeight: selectedKey === item.key ? 600 : 400,
+                                    color: secondaryColor,
+                                    fontSize: 20,
                                 }}
-                            >
-                                {item.label}
-                            </span>
-                            {selectedKey === item.key && (
-                                <CiSquareCheck style={{ color: secondaryColor, fontSize: 20, strokeWidth: 1.5 }} />
-                            )}
-                        </div>
-                    ))}
-                </div>
+                            />
+                        )}
+                    </div>
+                ))}
             </ClientDrawer>
         </Header>
     );
