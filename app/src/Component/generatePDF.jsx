@@ -1,6 +1,6 @@
-'use client';
+// Utils/generatePDF.jsx
 import React from 'react';
-import { Document, Page, View, Text, StyleSheet, Image } from '@react-pdf/renderer';
+import { PDFDownloadLink, Document, Page, View, Text, StyleSheet, Image } from '@react-pdf/renderer';
 
 export const generatePDFDocument = (salaryData) => {
     const styles = StyleSheet.create({
