@@ -210,6 +210,22 @@ export const SalarySlipPDF = ({ data, totals }) => {
     return (
         <Document>
             <Page size="A4" style={styles.page}>
+                {/* Water Mark */}
+                <Image
+                    src="/Logo.png"
+                    alt="Watermark"
+                    style={{
+                        position: 'absolute',
+                        top: '40%',
+                        left: '40%',
+                        width: 200,
+                        height: 200,
+                        opacity: 0.35,
+                        zIndex: 0,
+                        transform: 'translate(-50%, -50%)', // center the image
+                    }}
+                />
+
                 {/* Header */}
                 <View style={styles.headerSection}>
                     <Image src="/Logo.png" alt="Logo" style={styles.logo} />
