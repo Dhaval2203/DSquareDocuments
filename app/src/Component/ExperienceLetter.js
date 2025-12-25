@@ -7,8 +7,8 @@ import {
     Checkbox, Col,
     DatePicker, Form,
     Modal, Row,
-    Select, Tag,
-    Typography,
+    Select,
+    Typography
 } from 'antd';
 import { useEffect, useState } from 'react';
 
@@ -86,15 +86,6 @@ export default function ExperienceLetter() {
     const handleDeselectAll = () => {
         const newSelections = selectedPoints.filter(p => !pointsForCategory.includes(p));
         setSelectedPoints(newSelections);
-    };
-
-    const tagRender = (props) => {
-        const { label, closable, onClose } = props;
-        return (
-            <Tag color={primaryColor} closable={closable} onClose={onClose} style={{ marginRight: 4, marginBottom: 4 }}>
-                {label}
-            </Tag>
-        );
     };
 
     const handlePreview = () => {
