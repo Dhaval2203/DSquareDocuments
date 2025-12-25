@@ -54,22 +54,28 @@ const actionButtonStyle = {
 export default function OfferLetter() {
     const [form] = Form.useForm();
     const [previewVisible, setPreviewVisible] = useState(false);
+    // const initState = {
+    //     employeeId: 'sad',
+    //     employeeName: 'adwqed',
+    //     joiningDate: new Date().toDateString(),
+    //     position: 'Software Engineer',
+    // };
     const initState = {
-        employeeId: 'sad',
-        employeeName: 'adwqed',
-        joiningDate: new Date().toDateString(),
-        position: 'Software Engineer',
-    };
+        employeeId: null,
+        employeeName: null,
+        joiningDate: null,
+        position: null,
+    }
     const [pdfData, setPdfData] = useState(initState);
 
-    useEffect(() => {
-        form.setFieldsValue({
-            employeeId: initState.employeeId,
-            employeeName: initState.employeeName,
-            joiningDate: dayjs(initState.joiningDate, 'DD MMMM YYYY'),
-            position: initState.position,
-        });
-    }, [form]);
+    // useEffect(() => {
+    //     form.setFieldsValue({
+    //         employeeId: initState.employeeId,
+    //         employeeName: initState.employeeName,
+    //         joiningDate: dayjs(initState.joiningDate, 'DD MMMM YYYY'),
+    //         position: initState.position,
+    //     });
+    // }, [form]);
 
     /* ================= FORM SUBMIT ================= */
     const onFinish = (values) => {
