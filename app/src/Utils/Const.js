@@ -1,10 +1,10 @@
 export const comapnyName = "D Square Infotech";
 export const companyEmail = "info@dsquareinfotech.com";
 export const companyPhone = "+91 98765 43210";
-
 export const menuItems = [
     { key: "salarysleep", label: "Salary Sleep" },
     { key: "offerletter", label: "Offer Letter" },
+    { key: "experienceletter", label: "Experience Letter" }
 ]
 
 /* ----------------------------------
@@ -49,6 +49,34 @@ export const deductionsData = [
     { key: 'esic', label: 'ESIC', name: 'esic' },
     { key: 'tds', label: 'TDS', name: 'tds' },
     { key: 'lop', label: 'LOP', name: 'lop' },
+];
+
+export const positiveAchievements = [
+    'Consistently exceeded performance targets and deadlines.',
+    'Led key projects resulting in measurable business improvements.',
+    'Demonstrated strong problem-solving and analytical skills.',
+    'Received appreciation from clients and senior management for exemplary work.',
+];
+
+export const positiveSkills = [
+    'Team collaboration and coordination',
+    'Leadership and initiative',
+    'Communication and interpersonal skills',
+    'Technical proficiency in core responsibilities',
+];
+
+export const negativeConcerns = [
+    'Failed to consistently meet performance targets.',
+    'Struggled with time management and meeting deadlines.',
+    'Required frequent supervision for assigned tasks.',
+    'Had challenges in adapting to team processes and procedures.',
+];
+
+export const negativeImprovements = [
+    'Needs to enhance technical proficiency.',
+    'Improve communication and collaboration skills.',
+    'Develop problem-solving and decision-making abilities.',
+    'Focus on time management and accountability.',
 ];
 
 export function DSquareIcon() {

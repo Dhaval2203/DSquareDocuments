@@ -101,7 +101,7 @@ export default function OfferLetter() {
                     <Title level={3} style={{ color: whiteColor, marginBottom: 0 }}>
                         Offer Letter
                     </Title>
-                    <Text style={{ color: '#E5E7EB' }}>
+                    <Text style={{ color: whiteColor }}>
                         Generate employee offer letter
                     </Text>
                 </Card>

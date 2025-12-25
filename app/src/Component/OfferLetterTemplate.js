@@ -11,6 +11,7 @@ import {
     primaryColor, secondaryColor,
     primaryBackgroundColor, textColor
 } from '../Utils/Colors';
+import { renderIconList } from '../Utils/UIStyles/renderIconList';
 
 const styles = StyleSheet.create({
     page: {
@@ -163,18 +164,6 @@ export default function OfferLetterTemplate({
         'The company can amend policies from time to time.',
         'Termination notice period is as per company rules.',
     ];
-
-    const renderIconList = (items) =>
-        items.map((item, index) => (
-            <View key={index} style={styles.iconLine}>
-                <Image
-                    src="/Logo.png"
-                    alt='Checkmark Icon'
-                    style={styles.iconBox}
-                />
-                <Text>{item}</Text>
-            </View>
-        ));
 
     return (
         <Document>
