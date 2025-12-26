@@ -13,6 +13,28 @@ export const menuItems = [
 export const EMPLOYEE_DATA = [
     {
         employeeId: 'EMP001',
+        name: 'Deepali',
+        designation: 'Team Lead',
+        department: 'Engineering',
+        doj: '12-Jan-2022',
+        bankName: 'HDFC Bank',
+        bankAccount: '502134789654',
+        primaryEmail: 'deepalishrivastava921@gmail.com',
+        secondaryEmail: 'parekhdhaval2203@gmail.com'
+    },
+    {
+        employeeId: 'EMP003',
+        name: 'Darshan Parekh',
+        designation: 'Team Lead',
+        department: 'Engineering',
+        doj: '12-Jan-2022',
+        bankName: 'HDFC Bank',
+        bankAccount: '502134789654',
+        primaryEmail: 'darshanparekh37429@gmail.com',
+        secondaryEmail: 'parekhdhaval2203@gmail.com'
+    },
+    {
+        employeeId: 'EMP001',
         name: 'Parag Parekh',
         designation: 'Software Engineer',
         department: 'Engineering',
@@ -24,7 +46,7 @@ export const EMPLOYEE_DATA = [
     },
     {
         employeeId: 'EMP002',
-        name: 'Anjali Patel',
+        name: 'Dhaval Parekh',
         designation: 'UI/UX Designer',
         department: 'Design',
         doj: '05-Mar-2021',

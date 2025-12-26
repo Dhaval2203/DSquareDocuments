@@ -1,89 +1,82 @@
 'use client';
 
-import React, { useMemo, useRef, useState } from 'react';
 import {
-    Card,
-    Col,
-    DatePicker,
-    Form,
-    Input,
-    InputNumber,
-    Row,
-    Select,
-    Table,
+    Button, Card, Col, DatePicker,
+    Form, Input,
+    InputNumber, Modal,
+    Row, Select, Table,
     Typography,
-    Button,
-    Modal,
 } from 'antd';
 import dayjs from 'dayjs';
 import dynamic from "next/dynamic";
-
-import { saveAs } from 'file-saver';
+import { useMemo, useRef, useState } from 'react';
 import { pdf } from '@react-pdf/renderer';
+import { saveAs } from 'file-saver';
+import { DownloadOutlined, EyeOutlined, MailOutlined } from '@ant-design/icons';
+import {
+    accentColor, primaryBackgroundColor,
+    primaryColor, secondaryBackgroundColor,
+    secondaryColor, whiteColor,
+} from '../Utils/Colors';
+import { EMPLOYEE_DATA, deductionsData, earningsData } from '../Utils/Const';
+import { CustomCloseIcon, PreviewModalHeader, previewModalProps } from '../Utils/UIStyles/uiStyles';
+import numberToWords from '../Utils/UtilsFunction';
+import { SalarySlipPDF } from './SalarySlipTemplate';
+
 const PDFDownloadLink = dynamic(
-    () => import("@react-pdf/renderer").then(mod => mod.PDFDownloadLink),
+    () => import('@react-pdf/renderer').then((mod) => mod.PDFDownloadLink),
     { ssr: false }
 );
 
 const PDFViewer = dynamic(
-    () => import("@react-pdf/renderer").then(mod => mod.PDFViewer),
+    () => import('@react-pdf/renderer').then((mod) => mod.PDFViewer),
     { ssr: false }
 );
-
-import { SalarySlipPDF } from './SalarySlipTemplate';
-import {
-    accentColor,
-    primaryBackgroundColor,
-    primaryColor,
-    secondaryBackgroundColor,
-    secondaryColor,
-    whiteColor,
-} from '../Utils/Colors';
-import { EMPLOYEE_DATA, deductionsData, earningsData } from '../Utils/Const';
-import numberToWords from '../Utils/UtilsFunction';
-import { DownloadOutlined, EyeOutlined } from '@ant-design/icons';
-import { CustomCloseIcon, PreviewModalHeader, previewModalProps } from '../Utils/UIStyles/uiStyles';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
 /* --------------------------------
-   Helper: Working Days in Selected Month (Mon-Fri)
+   Helper: Working Days
 -------------------------------- */
 const getWorkingDaysInMonth = (monthYear) => {
     if (!monthYear) return 0;
 
-    const startOfMonth = dayjs(monthYear).startOf('month');
-    const endOfMonth = dayjs(monthYear).endOf('month');
-    let workingDays = 0;
+    const start = dayjs(monthYear).startOf('month');
+    const end = dayjs(monthYear).endOf('month');
+    let count = 0;
 
-    for (
-        let date = startOfMonth;
-        date.isBefore(endOfMonth) || date.isSame(endOfMonth, 'day');
-        date = date.add(1, 'day')
-    ) {
-        const day = date.day();
-        if (day !== 0 && day !== 6) workingDays++;
+    let current = start;
+
+    while (current.isBefore(end) || current.isSame(end, 'day')) {
+        const day = current.day();
+        if (day !== 0 && day !== 6) {
+            count++;
+        }
+        current = current.add(1, 'day');
     }
-    return workingDays;
+
+    return count;
 };
 
 export default function SalarySlip() {
     const [previewVisible, setPreviewVisible] = useState(false);
+    const [isSending, setIsSending] = useState(false);
+    const [sending, setSending] = useState(false);
+
     const [form] = Form.useForm();
     const values = Form.useWatch([], form);
-    const slipRef = useRef();
+    const slipRef = useRef(null);
 
     const actionButtonStyle = {
         minWidth: 160,
-        paddingInline: 20,
         height: 44,
         borderRadius: 14,
         fontWeight: 600,
     };
 
     /* --------------------------------
-       Totals (Live Calculation)
+       Totals
     -------------------------------- */
     const totals = useMemo(() => {
         const totalEarnings =
@@ -154,6 +147,52 @@ export default function SalarySlip() {
 
         saveAs(blob, `${values.name || 'Employee'}_${monthYearText}.pdf`);
     };
+
+    const sendPDFByEmail = async () => {
+        try {
+            setSending(true);
+
+            const blob = await pdf(
+                <SalarySlipPDF data={salaryPDFData} totals={totals} />
+            ).toBlob();
+
+            const monthYearText = values.monthYear?.format
+                ? values.monthYear.format('MMM_YYYY')
+                : dayjs().format('MMM_YYYY');
+
+            const fileName = `${values.name}_Salary_Slip_${monthYearText}.pdf`;
+
+            const pdfFile = new File([blob], fileName, {
+                type: 'application/pdf',
+            });
+
+            const formData = new FormData();
+            formData.append('file', pdfFile);
+            formData.append('employeeId', values.employeeId);
+            formData.append('monthYear', monthYearText);
+
+            const res = await fetch('/api/send-file', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await res.json();
+            if (!res.ok) throw new Error(result.error);
+
+            Modal.success({
+                title: 'Email Sent',
+                content: 'Salary slip has been sent successfully.',
+            });
+        } catch (err) {
+            Modal.error({
+                title: 'Error',
+                content: 'Failed to send salary slip email.',
+            });
+        } finally {
+            setSending(false);
+        }
+    };
+
 
     return (
         <Card style={{ borderRadius: 16, background: '#F8FAFC' }}>
@@ -333,42 +372,41 @@ export default function SalarySlip() {
                 </Form>
             </div>
 
-            {/* Buttons */}
-            <Row style={{ marginTop: 16 }}>
-                <Col
-                    xs={24}
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        gap: 12,
-                        flexWrap: 'wrap',
-                    }}
-                >
+            {/* Action Buttons */}
+            <Row justify="end" gutter={[12, 12]} style={{ marginTop: 20 }}>
+                <Col>
                     <Button
                         icon={<EyeOutlined />}
-                        style={{
-                            ...actionButtonStyle,
-                            backgroundColor: primaryColor,
-                            color: whiteColor,
-                        }}
+                        style={{ ...actionButtonStyle, background: primaryColor, color: whiteColor }}
                         onClick={() => setPreviewVisible(true)}
                     >
-                        Preview PDF
+                        Preview
                     </Button>
+                </Col>
 
+                <Col>
                     <Button
                         icon={<DownloadOutlined />}
-                        style={{
-                            ...actionButtonStyle,
-                            backgroundColor: secondaryColor,
-                            color: whiteColor,
-                        }}
+                        style={{ ...actionButtonStyle, background: secondaryColor, color: whiteColor }}
                         onClick={generatePDF}
                     >
                         Download PDF
                     </Button>
                 </Col>
+
+                <Col>
+                    <Button
+                        icon={<MailOutlined />}
+                        loading={sending}
+                        disabled={sending}
+                        style={{ ...actionButtonStyle, background: accentColor, color: whiteColor }}
+                        onClick={sendPDFByEmail}
+                    >
+                        Send Email
+                    </Button>
+                </Col>
             </Row>
+
 
             {/* ================= PREVIEW MODAL ================= */}
             <Modal
