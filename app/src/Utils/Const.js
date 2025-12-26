@@ -23,7 +23,7 @@ export const EMPLOYEE_DATA = [
         secondaryEmail: 'parekhdhaval2203@gmail.com'
     },
     {
-        employeeId: 'EMP003',
+        employeeId: 'EMP002',
         name: 'Darshan Parekh',
         designation: 'Team Lead',
         department: 'Engineering',
@@ -34,7 +34,7 @@ export const EMPLOYEE_DATA = [
         secondaryEmail: 'parekhdhaval2203@gmail.com'
     },
     {
-        employeeId: 'EMP001',
+        employeeId: 'EMP003',
         name: 'Parag Parekh',
         designation: 'Software Engineer',
         department: 'Engineering',
@@ -45,7 +45,7 @@ export const EMPLOYEE_DATA = [
         secondaryEmail: 'parekhdhaval2203@gmail.com'
     },
     {
-        employeeId: 'EMP002',
+        employeeId: 'EMP004',
         name: 'Dhaval Parekh',
         designation: 'UI/UX Designer',
         department: 'Design',
